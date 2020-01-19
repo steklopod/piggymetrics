@@ -1,7 +1,12 @@
-version: '2.1'
+# docker-compose -f docker-compose.dev.yml up --build --force-recreate
+
+version: '3.7'
 services:
   rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
     ports:
+      #      - 15672:15672
       - 5672:5672
 
   config:
@@ -11,52 +16,64 @@ services:
 
   registry:
     build: registry
+    depends_on:
+      - config
 
   gateway:
     build: gateway
-
-  auth-service:
-    build: auth-service
-    ports:
-      - 5000:5000
-
-  auth-mongodb:
-    build: mongodb
-    ports:
-      - 25000:27017
-
-  account-service:
-    build: account-service
-    ports:
-      - 6000:6000
+    depends_on:
+      - registry
 
   account-mongodb:
     build: mongodb
+    depends_on:
+      - gateway
     ports:
       - 26000:27017
-
-  statistics-service:
-    build: statistics-service
-    ports:
-      - 7000:7000
-
-  statistics-mongodb:
+  auth-mongodb:
     build: mongodb
+    depends_on:
+      - gateway
     ports:
-      - 27000:27017
+      - 25000:27017
 
-  notification-service:
-    build: notification-service
+  auth-service:
+    build: auth-service
+    depends_on:
+      - gateway
+      - auth-mongodb
     ports:
-      - 8000:8000
-
-  notification-mongodb:
-    build: mongodb
+      - 5000:5000
+  account-service:
+    build: account-service
+    depends_on:
+      - gateway
+      - account-mongodb
     ports:
-      - 28000:27017
+      - 6000:6000
 
-  monitoring:
-    build: monitoring
-
-  turbine-stream-service:
-    build: turbine-stream-service
+#  statistics-service:
+#    build: statistics-service
+#    ports:
+#      - 7000:7000
+#
+#  statistics-mongodb:
+#    build: mongodb
+#    ports:
+#      - 27000:27017
+#
+#  notification-service:
+#    build: notification-service
+#    ports:
+#      - 8000:8000
+#
+#  notification-mongodb:
+#    build: mongodb
+#    ports:
+#      - 28000:27017
+#
+#  monitoring:
+#    build: monitoring
+#
+#  turbine-stream-service:
+#    build: turbine-stream-service

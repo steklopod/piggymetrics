@@ -1,7 +1,4 @@
-FROM java:8-jre
-MAINTAINER Alexander Lukyanchikov <sqshq@sqshq.com>
-
+FROM openjdk:11.0.5-jre-slim
 ADD ./target/registry.jar /app/
-CMD ["java", "-Xmx200m", "-jar", "/app/registry.jar"]
-
+CMD ["java", "-jar", "/app/registry.jar"]
 EXPOSE 8761
